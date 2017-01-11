@@ -12,22 +12,48 @@ namespace WCFSoapService
     // NOTE: In order to launch WCF Test Client for testing this service, please select Service1.svc or Service1.svc.cs at the Solution Explorer and start debugging.
     public class Service1 : IService1
     {
-        public string GetData(int value)
+        public static int Ids { get; set; }
+        private static readonly List<Dummy> Dummies = new List<Dummy>
         {
-            return string.Format("You entered: {0}", value);
+            new Dummy("First Dummy")
+            {
+                Id = ++Ids
+            }
+        };
+
+        //Gets all items in the list
+        public List<Dummy> GetAll()
+        {
+            return Dummies;
         }
 
-        public CompositeType GetDataUsingDataContract(CompositeType composite)
+        //Gets all items in list with given name
+        public IEnumerable<Dummy> GetDummy(string name)
         {
-            if (composite == null)
+            return Dummies.Where(x => x.Name == name);
+        }
+
+        //Adds new item to list with given name
+        public void Add(string name)
+        {
+            Dummies.Add(new Dummy(name)
             {
-                throw new ArgumentNullException("composite");
-            }
-            if (composite.BoolValue)
-            {
-                composite.StringValue += "Suffix";
-            }
-            return composite;
+                Id = ++Ids
+            });
+        }
+
+        //Edits item with given id and sets the name to newname
+        public void Edit(int id, string newname)
+        {
+            var d = Dummies.FindIndex(X => X.Id.Equals(id));
+            Dummies[d].Name = newname;
+        }
+
+        //Deletes the first item from the list with the given name
+        public void Delete(string name)
+        {
+            Dummy dummy = GetDummy(name).First();
+            Dummies.Remove(dummy);
         }
     }
 }
